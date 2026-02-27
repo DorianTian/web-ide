@@ -1,0 +1,70 @@
+:root {
+  /* Activity Bar */
+  --activity-bar-width: 48px;
+  --activity-bar-bg: #333333;
+  --activity-bar-fg: #cccccc;
+  --activity-bar-active-fg: #ffffff;
+  --activity-bar-active-border: #ffffff;
+  --activity-bar-hover-bg: #2a2a2a;
+
+  /* Side Panel */
+  --side-panel-width: 260px;
+  --side-panel-min-width: 170px;
+  --side-panel-max-width: 500px;
+  --side-panel-bg: #252526;
+  --side-panel-fg: #cccccc;
+  --side-panel-header-bg: #252526;
+  --side-panel-header-fg: #bbbbbb;
+
+  /* Editor */
+  --editor-bg: #1e1e1e;
+  --editor-fg: #d4d4d4;
+  --editor-tab-height: 35px;
+  --editor-tab-bg: #2d2d2d;
+  --editor-tab-active-bg: #1e1e1e;
+  --editor-tab-active-fg: #ffffff;
+  --editor-tab-inactive-fg: #969696;
+  --editor-tab-border: #252526;
+  --editor-tab-dirty: #e8e8e8;
+
+  /* Bottom Panel */
+  --bottom-panel-height: 200px;
+  --bottom-panel-min-height: 100px;
+  --bottom-panel-max-height: 600px;
+  --bottom-panel-bg: #1e1e1e;
+  --bottom-panel-fg: #cccccc;
+  --bottom-panel-header-bg: #252526;
+
+  /* Status Bar */
+  --status-bar-height: 22px;
+  --status-bar-bg: #007acc;
+  --status-bar-fg: #ffffff;
+
+  /* Resizer */
+  --resizer-size: 4px;
+  --resizer-hover-color: #007acc;
+
+  /* General */
+  --border-color: #3c3c3c;
+  --focus-border: #007acc;
+  --scrollbar-bg: rgba(121, 121, 121, 0.4);
+  --scrollbar-hover-bg: rgba(100, 100, 100, 0.7);
+
+  /* Context Menu */
+  --context-menu-bg: #252526;
+  --context-menu-fg: #cccccc;
+  --context-menu-hover-bg: #04395e;
+  --context-menu-border: #454545;
+  --context-menu-separator: #454545;
+
+  /* Selection & Highlight */
+  --selection-bg: #264f78;
+  --list-hover-bg: #2a2d2e;
+  --list-active-bg: #37373d;
+
+  /* Font */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-mono: 'Menlo', 'Monaco', 'Courier New', monospace;
+  --font-size: 13px;
+  --font-size-small: 11px;
+}
