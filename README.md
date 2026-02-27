@@ -31,12 +31,16 @@ data-dev-ide/
 │   ├── client/                 # 前端应用 (React + Vite)
 │   │   └── src/
 │   │       ├── components/     # UI 组件
-│   │       ├── features/       # Monaco Editor 配置 + ANTLR4 SQL 解析
+│   │       ├── features/       # Monaco Editor 配置
 │   │       ├── hooks/          # 自定义 Hooks
 │   │       ├── layouts/        # 布局组件
 │   │       ├── services/       # API 服务层
 │   │       ├── stores/         # Zustand 状态管理
 │   │       └── styles/         # 主题与全局样式
+│   ├── sql-parser/              # SQL 解析引擎 (ANTLR4 + c3)
+│   │   └── src/
+│   │       ├── antlr/          # ANTLR4 生成的 Lexer/Parser
+│   │       └── SqlCompletionService.ts  # 上下文感知补全逻辑
 │   ├── server/                 # 后端服务 (Express)
 │   │   └── src/
 │   │       ├── controllers/    # 请求控制器

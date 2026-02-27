@@ -1,5 +1,5 @@
 import * as monaco from 'monaco-editor';
-import { getCompletions, type SchemaData } from './SqlCompletionService';
+import { getCompletions, type SchemaData } from '@data-dev-ide/sql-parser';
 import { useDatabaseStore } from '../../../../stores/useDatabaseStore';
 
 const SQL_KEYWORDS = [
