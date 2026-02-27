@@ -1,6 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { setupMonaco, monaco } from '../../features/monaco/setup';
 import { useEditorStore } from '../../stores/useEditorStore';
+import { useLayoutStore } from '../../stores/useLayoutStore';
 import { useUIStore } from '../../stores/useUIStore';
 import { fileApi } from '../../services/api';
 import styles from './MonacoEditor.module.css';
@@ -70,6 +71,26 @@ export function MonacoEditor() {
       fileApi.updateFile(tab.filePath, model.getValue()).then(() => {
         useEditorStore.getState().setDirty(tabId, false);
       });
+    });
+
+    // Register SQL execute command (Cmd+Enter)
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      const model = editor.getModel();
+      if (!model) return;
+
+      const selection = editor.getSelection();
+      let sql: string;
+      if (selection && !selection.isEmpty()) {
+        sql = model.getValueInRange(selection);
+      } else {
+        sql = model.getValue();
+      }
+
+      const trimmed = sql.trim();
+      if (!trimmed) return;
+
+      useEditorStore.getState().executeSql(trimmed);
+      useLayoutStore.getState().setActiveBottomTab('result');
     });
 
     // Register format command

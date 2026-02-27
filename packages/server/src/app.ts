@@ -3,6 +3,7 @@ import http from 'http';
 import cors from 'cors';
 import { fileRoutes } from './routes/fileRoutes';
 import { healthRoutes } from './routes/healthRoutes';
+import { sqlRoutes } from './routes/sqlRoutes';
 import { errorHandler } from './middleware/errorHandler';
 import { logger } from './middleware/logger';
 import { createWsServer } from './websocket/wsServer';
@@ -18,6 +19,7 @@ app.use(logger);
 
 app.use('/api/v1/health', healthRoutes);
 app.use('/api/v1/files', fileRoutes);
+app.use('/api/v1/sql', sqlRoutes);
 
 app.use(errorHandler);
 

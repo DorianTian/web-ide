@@ -22,3 +22,16 @@ export interface FileChangeEvent {
   type: 'add' | 'change' | 'unlink' | 'addDir' | 'unlinkDir';
   path: string;
 }
+
+export interface SqlExecuteRequest {
+  sql: string;
+}
+
+export interface SqlExecuteResult {
+  columns: string[];
+  rows: Record<string, unknown>[];
+  rowCount: number;
+  duration: number;
+  type: 'query' | 'statement';
+  message?: string;
+}

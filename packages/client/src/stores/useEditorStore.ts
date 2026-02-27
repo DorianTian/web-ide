@@ -1,11 +1,17 @@
 import { create } from 'zustand';
-import type { TabState, ViewState } from '@data-dev-ide/shared';
+import type { TabState, ViewState, SqlExecuteResult } from '@data-dev-ide/shared';
+import { sqlApi } from '../services/api';
 
 interface EditorState {
   tabs: Map<string, TabState>;
   tabOrder: string[];
   activeTabId: string | null;
   viewStates: Map<string, ViewState>;
+
+  // SQL execution state
+  sqlResult: SqlExecuteResult | null;
+  sqlLoading: boolean;
+  sqlError: string | null;
 
   openTab: (tab: TabState) => void;
   closeTab: (id: string) => string | null;
@@ -17,6 +23,7 @@ interface EditorState {
   getViewState: (id: string) => ViewState | undefined;
   updateTabPath: (oldPath: string, newPath: string, newName: string) => void;
   closeAllTabs: () => void;
+  executeSql: (sql: string) => Promise<void>;
 }
 
 function findTabIdByPath(tabs: Map<string, TabState>, filePath: string): string | undefined {
@@ -31,6 +38,9 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   tabOrder: [],
   activeTabId: null,
   viewStates: new Map(),
+  sqlResult: null,
+  sqlLoading: false,
+  sqlError: null,
 
   openTab: (tab) => {
     const state = get();
@@ -147,4 +157,15 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       activeTabId: null,
       viewStates: new Map(),
     }),
+
+  executeSql: async (sql: string) => {
+    set({ sqlLoading: true, sqlError: null });
+    try {
+      const result = await sqlApi.execute(sql);
+      set({ sqlResult: result, sqlLoading: false });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'SQL execution failed';
+      set({ sqlError: message, sqlLoading: false, sqlResult: null });
+    }
+  },
 }));

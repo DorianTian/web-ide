@@ -1,6 +1,67 @@
 .panel {
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 12px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.info {
+  font-size: var(--font-size-small);
+  color: var(--text-secondary);
+  font-family: var(--font-family-mono);
+}
+
+.tableWrap {
+  flex: 1;
   overflow: auto;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 100%;
+  color: var(--text-secondary);
+  font-size: var(--font-size-small);
+}
+
+.hint {
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+.error {
+  color: var(--error-color, #f5222d);
+  font-family: var(--font-family-mono);
+  white-space: pre-wrap;
+  padding: 12px;
+  max-width: 100%;
+  overflow: auto;
+}
+
+.success {
+  color: var(--success-color, #52c41a);
+}
+
+.statusText {
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+
+.null {
+  color: var(--text-secondary);
+  opacity: 0.5;
+  font-style: italic;
 }
 
 .table :global(.ant-table) {

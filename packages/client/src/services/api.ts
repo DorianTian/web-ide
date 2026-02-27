@@ -1,5 +1,11 @@
 import axios from 'axios';
-import type { ApiResponse, FileNode, FileContent, SearchResult } from '@data-dev-ide/shared';
+import type {
+  ApiResponse,
+  FileNode,
+  FileContent,
+  SearchResult,
+  SqlExecuteResult,
+} from '@data-dev-ide/shared';
 
 const api = axios.create({
   baseURL: '/api/v1',
@@ -32,4 +38,11 @@ export const fileApi = {
 
   searchFiles: (q: string) =>
     api.get<ApiResponse<SearchResult[]>>('/files/search', { params: { q } }).then((r) => r.data.data!),
+};
+
+export const sqlApi = {
+  execute: (sql: string) =>
+    api
+      .post<ApiResponse<SqlExecuteResult>>('/sql/execute', { sql }, { timeout: 30000 })
+      .then((r) => r.data.data!),
 };
