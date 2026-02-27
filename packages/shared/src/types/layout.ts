@@ -13,6 +13,6 @@ export interface PanelConfig {
   defaultSize: number;
 }
 
-export type ActivityItem = 'explorer' | 'search' | 'git' | 'extensions' | 'settings';
+export type ActivityItem = 'explorer' | 'search' | 'git' | 'extensions' | 'settings' | 'database';
 
 export type BottomPanelTab = 'result' | 'output';

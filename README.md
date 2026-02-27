@@ -4,12 +4,17 @@
 
 ![Data Dev IDE](docs/screenshot.png)
 
+### SQL 智能补全
+
+![SQL IntelliSense](docs/auto.png)
+
 ## 技术栈
 
 | 层级 | 技术 |
 |------|------|
 | 前端框架 | React 18 + TypeScript |
 | 代码编辑器 | Monaco Editor |
+| SQL 解析 | ANTLR4 (antlr4ng) + Code Completion Core (antlr4-c3) |
 | UI 组件库 | Ant Design |
 | 状态管理 | Zustand |
 | 构建工具 | Vite |
@@ -26,7 +31,7 @@ data-dev-ide/
 │   ├── client/                 # 前端应用 (React + Vite)
 │   │   └── src/
 │   │       ├── components/     # UI 组件
-│   │       ├── features/       # Monaco Editor 配置
+│   │       ├── features/       # Monaco Editor 配置 + ANTLR4 SQL 解析
 │   │       ├── hooks/          # 自定义 Hooks
 │   │       ├── layouts/        # 布局组件
 │   │       ├── services/       # API 服务层
@@ -73,6 +78,20 @@ pnpm dev
 - 深色/浅色主题切换
 - 文件自动保存与脏状态标记
 
+### SQL 智能补全 (IntelliSense)
+- 基于 ANTLR4 + c3 的上下文感知补全
+- `db.` 触发该库下所有表名补全
+- `table.` 或 `alias.` 触发该表所有字段补全（支持别名解析）
+- `FROM` / `JOIN` 后优先补全表名
+- `SELECT` / `WHERE` / `ON` 后补全已引用表的字段
+- SQL 关键词、函数、类型、Snippets 补全
+
+### Database Explorer
+- 左侧 Activity Bar 数据库面板，树形展示 Database → Table → Column
+- 支持创建、切换、删除多个 SQLite 数据库
+- 双击表名自动插入 `SELECT * FROM table LIMIT 100;` 到编辑器
+- DDL 执行后自动刷新 Schema 元数据
+
 ### SQL 执行
 - 内置 SQLite 数据库，支持真实 SQL 执行
 - 预置 demo 数据（users 表 + orders 表）
@@ -113,6 +132,11 @@ pnpm dev
 | DELETE | `/api/v1/files/delete?path=` | 删除文件 |
 | GET | `/api/v1/files/search?q=` | 搜索文件 |
 | POST | `/api/v1/sql/execute` | 执行 SQL |
+| GET | `/api/v1/sql/databases` | 列出所有数据库 |
+| POST | `/api/v1/sql/databases` | 创建新数据库 |
+| PUT | `/api/v1/sql/databases/active` | 切换活跃数据库 |
+| DELETE | `/api/v1/sql/databases/:name` | 删除数据库 |
+| GET | `/api/v1/sql/schemas` | 获取 Schema 元数据 |
 
 ## License
 

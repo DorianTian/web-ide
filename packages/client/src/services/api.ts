@@ -5,6 +5,8 @@ import type {
   FileContent,
   SearchResult,
   SqlExecuteResult,
+  DatabaseInfo,
+  SchemaMetadata,
 } from '@data-dev-ide/shared';
 
 const api = axios.create({
@@ -44,5 +46,20 @@ export const sqlApi = {
   execute: (sql: string) =>
     api
       .post<ApiResponse<SqlExecuteResult>>('/sql/execute', { sql }, { timeout: 30000 })
+      .then((r) => r.data.data!),
+
+  getDatabases: () =>
+    api.get<ApiResponse<DatabaseInfo[]>>('/sql/databases').then((r) => r.data.data!),
+
+  createDatabase: (name: string) =>
+    api.post<ApiResponse<DatabaseInfo>>('/sql/databases', { name }).then((r) => r.data.data!),
+
+  setActiveDatabase: (name: string) => api.put('/sql/databases/active', { name }),
+
+  deleteDatabase: (name: string) => api.delete(`/sql/databases/${name}`),
+
+  getSchemas: (db?: string) =>
+    api
+      .get<ApiResponse<SchemaMetadata>>('/sql/schemas', { params: db ? { db } : {} })
       .then((r) => r.data.data!),
 };

@@ -34,4 +34,35 @@ export interface SqlExecuteResult {
   duration: number;
   type: 'query' | 'statement';
   message?: string;
+  schemaChanged?: boolean;
+}
+
+// Database / Schema metadata types
+
+export interface DatabaseInfo {
+  name: string;
+  file: string;
+  isActive: boolean;
+  tableCount: number;
+}
+
+export interface TableInfo {
+  name: string;
+  database: string;
+  type: 'table' | 'view';
+  columnCount: number;
+}
+
+export interface ColumnInfo {
+  name: string;
+  type: string;
+  nullable: boolean;
+  isPrimaryKey: boolean;
+  defaultValue: string | null;
+}
+
+export interface SchemaMetadata {
+  databases: DatabaseInfo[];
+  tables: Record<string, TableInfo[]>;
+  columns: Record<string, ColumnInfo[]>;
 }

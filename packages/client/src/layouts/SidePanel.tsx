@@ -1,5 +1,6 @@
 import { useLayoutStore } from '../stores/useLayoutStore';
 import { FileExplorer } from '../components/explorer/FileExplorer';
+import { DatabaseExplorer } from '../components/database/DatabaseExplorer';
 import styles from './SidePanel.module.css';
 
 export function SidePanel() {
@@ -10,6 +11,7 @@ export function SidePanel() {
       <div className={styles.header}>
         <span className={styles.title}>
           {activeActivity === 'explorer' && 'EXPLORER'}
+          {activeActivity === 'database' && 'DATABASE EXPLORER'}
           {activeActivity === 'search' && 'SEARCH'}
           {activeActivity === 'git' && 'SOURCE CONTROL'}
           {activeActivity === 'extensions' && 'EXTENSIONS'}
@@ -18,6 +20,7 @@ export function SidePanel() {
       </div>
       <div className={styles.content}>
         {activeActivity === 'explorer' && <FileExplorer />}
+        {activeActivity === 'database' && <DatabaseExplorer />}
         {activeActivity === 'search' && (
           <div className={styles.placeholder}>Search (coming soon)</div>
         )}

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { TabState, ViewState, SqlExecuteResult } from '@data-dev-ide/shared';
 import { sqlApi } from '../services/api';
+import { useDatabaseStore } from './useDatabaseStore';
 
 interface EditorState {
   tabs: Map<string, TabState>;
@@ -163,6 +164,10 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
     try {
       const result = await sqlApi.execute(sql);
       set({ sqlResult: result, sqlLoading: false });
+      // Auto-refresh schema after DDL changes
+      if (result.schemaChanged) {
+        useDatabaseStore.getState().refreshSchema();
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'SQL execution failed';
       set({ sqlError: message, sqlLoading: false, sqlResult: null });

@@ -4,6 +4,7 @@ import {
   BranchesOutlined,
   AppstoreOutlined,
   SettingOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 import { useLayoutStore } from '../stores/useLayoutStore';
 import type { ActivityItem } from '@data-dev-ide/shared';
@@ -11,6 +12,7 @@ import styles from './ActivityBar.module.css';
 
 const ITEMS: { id: ActivityItem; icon: React.ReactNode; title: string }[] = [
   { id: 'explorer', icon: <FileOutlined />, title: 'Explorer' },
+  { id: 'database', icon: <DatabaseOutlined />, title: 'Database Explorer' },
   { id: 'search', icon: <SearchOutlined />, title: 'Search' },
   { id: 'git', icon: <BranchesOutlined />, title: 'Source Control' },
   { id: 'extensions', icon: <AppstoreOutlined />, title: 'Extensions' },

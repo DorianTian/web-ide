@@ -1,22 +1,39 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
+import type { DatabaseInfo, TableInfo, ColumnInfo, SchemaMetadata } from '@data-dev-ide/shared';
 
 const DB_DIR = path.resolve(process.cwd(), 'workspace/.data');
-const DB_PATH = path.join(DB_DIR, 'ide.db');
+const DEFAULT_DB = 'ide.db';
 const MAX_ROWS = 5000;
 
 let db: Database.Database;
+let activeDbName = 'main';
 
 function getDb(): Database.Database {
   if (!db) {
     fs.mkdirSync(DB_DIR, { recursive: true });
-    db = new Database(DB_PATH);
+    const mainDbPath = path.join(DB_DIR, DEFAULT_DB);
+    db = new Database(mainDbPath);
     db.pragma('journal_mode = WAL');
     db.pragma('busy_timeout = 3000');
     initDemoData();
+    reattachDatabases();
   }
   return db;
+}
+
+function reattachDatabases(): void {
+  const files = fs.readdirSync(DB_DIR).filter((f) => f.endsWith('.db') && f !== DEFAULT_DB);
+  for (const file of files) {
+    const name = file.replace('.db', '');
+    const filePath = path.join(DB_DIR, file);
+    try {
+      db.exec(`ATTACH DATABASE '${filePath}' AS "${name}"`);
+    } catch {
+      // already attached or invalid
+    }
+  }
 }
 
 function initDemoData(): void {
@@ -125,6 +142,12 @@ function isSelectQuery(sql: string): boolean {
   );
 }
 
+const DDL_PATTERN = /^\s*(CREATE|ALTER|DROP|ATTACH|DETACH)\b/i;
+
+function isDdl(sql: string): boolean {
+  return DDL_PATTERN.test(sql);
+}
+
 export interface ExecuteResult {
   columns: string[];
   rows: Record<string, unknown>[];
@@ -132,12 +155,14 @@ export interface ExecuteResult {
   duration: number;
   type: 'query' | 'statement';
   message?: string;
+  schemaChanged?: boolean;
 }
 
 export const sqlService = {
   execute(sql: string): ExecuteResult {
     const database = getDb();
     const start = performance.now();
+    const schemaChanged = isDdl(sql);
 
     if (isSelectQuery(sql)) {
       const stmt = database.prepare(sql);
@@ -156,9 +181,7 @@ export const sqlService = {
       };
     }
 
-    // Check if it contains multiple statements (semicolons not at end)
-    const hasMultipleStatements =
-      sql.replace(/;[\s]*$/, '').includes(';');
+    const hasMultipleStatements = sql.replace(/;[\s]*$/, '').includes(';');
 
     if (hasMultipleStatements) {
       database.exec(sql);
@@ -170,6 +193,7 @@ export const sqlService = {
         duration,
         type: 'statement',
         message: 'Statements executed successfully.',
+        schemaChanged,
       };
     }
 
@@ -184,6 +208,136 @@ export const sqlService = {
       duration,
       type: 'statement',
       message: `Statement executed successfully. ${result.changes} row(s) affected.`,
+      schemaChanged,
     };
+  },
+
+  // Multi-database management
+
+  getDatabases(): DatabaseInfo[] {
+    const database = getDb();
+    const dbList = database.pragma('database_list') as { seq: number; name: string; file: string }[];
+
+    return dbList.map((d) => {
+      const count = database
+        .prepare(`SELECT COUNT(*) as c FROM "${d.name}".sqlite_master WHERE type IN ('table','view')`)
+        .get() as { c: number };
+      return {
+        name: d.name,
+        file: d.file ? path.basename(d.file) : '',
+        isActive: d.name === activeDbName,
+        tableCount: count.c,
+      };
+    });
+  },
+
+  createDatabase(name: string): DatabaseInfo {
+    const database = getDb();
+    const fileName = `${name}.db`;
+    const filePath = path.join(DB_DIR, fileName);
+
+    if (fs.existsSync(filePath)) {
+      throw new Error(`Database "${name}" already exists`);
+    }
+
+    database.exec(`ATTACH DATABASE '${filePath}' AS "${name}"`);
+    return { name, file: fileName, isActive: false, tableCount: 0 };
+  },
+
+  setActiveDatabase(name: string): void {
+    const database = getDb();
+    const dbList = database.pragma('database_list') as { name: string }[];
+    const exists = dbList.some((d) => d.name === name);
+    if (!exists) {
+      throw new Error(`Database "${name}" not found`);
+    }
+    activeDbName = name;
+  },
+
+  getActiveDatabase(): string {
+    return activeDbName;
+  },
+
+  deleteDatabase(name: string): void {
+    if (name === 'main') {
+      throw new Error('Cannot delete the main database');
+    }
+
+    const database = getDb();
+    const dbList = database.pragma('database_list') as { name: string; file: string }[];
+    const target = dbList.find((d) => d.name === name);
+    if (!target) {
+      throw new Error(`Database "${name}" not found`);
+    }
+
+    database.exec(`DETACH DATABASE "${name}"`);
+
+    if (target.file) {
+      try {
+        fs.unlinkSync(target.file);
+      } catch {
+        // file may already be gone
+      }
+    }
+
+    if (activeDbName === name) {
+      activeDbName = 'main';
+    }
+  },
+
+  getSchemas(dbName?: string): SchemaMetadata {
+    const database = getDb();
+    const dbList = database.pragma('database_list') as { name: string; file: string }[];
+    const targetDbs = dbName ? dbList.filter((d) => d.name === dbName) : dbList;
+
+    const databases: DatabaseInfo[] = [];
+    const tables: Record<string, TableInfo[]> = {};
+    const columns: Record<string, ColumnInfo[]> = {};
+
+    for (const d of targetDbs) {
+      const tableRows = database
+        .prepare(
+          `SELECT name, type FROM "${d.name}".sqlite_master WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%' ORDER BY name`,
+        )
+        .all() as { name: string; type: string }[];
+
+      databases.push({
+        name: d.name,
+        file: d.file ? path.basename(d.file) : '',
+        isActive: d.name === activeDbName,
+        tableCount: tableRows.length,
+      });
+
+      tables[d.name] = [];
+
+      for (const t of tableRows) {
+        const colRows = database.pragma(`"${d.name}".table_info("${t.name}")`) as {
+          cid: number;
+          name: string;
+          type: string;
+          notnull: number;
+          dflt_value: string | null;
+          pk: number;
+        }[];
+
+        tables[d.name].push({
+          name: t.name,
+          database: d.name,
+          type: t.type as 'table' | 'view',
+          columnCount: colRows.length,
+        });
+
+        const key = `${d.name}.${t.name}`;
+        columns[key] = colRows.map((c) => ({
+          name: c.name,
+          type: c.type || 'TEXT',
+          nullable: c.notnull === 0,
+          isPrimaryKey: c.pk > 0,
+          defaultValue: c.dflt_value,
+        }));
+      }
+    }
+
+    return { databases, tables, columns };
   },
 };

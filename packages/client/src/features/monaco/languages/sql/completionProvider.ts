@@ -1,4 +1,6 @@
 import * as monaco from 'monaco-editor';
+import { getCompletions, type SchemaData } from './SqlCompletionService';
+import { useDatabaseStore } from '../../../../stores/useDatabaseStore';
 
 const SQL_KEYWORDS = [
   'SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'NOT', 'IN', 'IS', 'NULL',
@@ -11,7 +13,7 @@ const SQL_KEYWORDS = [
   'LIKE', 'BETWEEN', 'WITH', 'OVER', 'PARTITION',
   'GRANT', 'REVOKE', 'COMMIT', 'ROLLBACK', 'BEGIN', 'TRANSACTION',
   'EXPLAIN', 'ANALYZE', 'TRUNCATE',
-  'DEFAULT', 'AUTO_INCREMENT', 'COMMENT', 'ENGINE', 'CHARSET',
+  'DEFAULT', 'AUTOINCREMENT',
   'UNIQUE', 'CHECK', 'CONSTRAINT', 'CASCADE',
 ];
 
@@ -31,29 +33,30 @@ const SQL_FUNCTIONS = [
   { name: 'COALESCE', detail: 'COALESCE(expr1, expr2, ...)' },
   { name: 'NULLIF', detail: 'NULLIF(expr1, expr2)' },
   { name: 'CAST', detail: 'CAST(expr AS type)' },
-  { name: 'NOW', detail: 'NOW()' },
-  { name: 'CURRENT_TIMESTAMP', detail: 'CURRENT_TIMESTAMP' },
-  { name: 'DATE_FORMAT', detail: 'DATE_FORMAT(date, format)' },
-  { name: 'DATEDIFF', detail: 'DATEDIFF(date1, date2)' },
+  { name: 'DATETIME', detail: "DATETIME('now')" },
+  { name: 'DATE', detail: "DATE('now')" },
   { name: 'IFNULL', detail: 'IFNULL(expr1, expr2)' },
   { name: 'ROUND', detail: 'ROUND(number, decimals)' },
-  { name: 'FLOOR', detail: 'FLOOR(number)' },
-  { name: 'CEIL', detail: 'CEIL(number)' },
   { name: 'ABS', detail: 'ABS(number)' },
   { name: 'ROW_NUMBER', detail: 'ROW_NUMBER() OVER (...)' },
   { name: 'RANK', detail: 'RANK() OVER (...)' },
   { name: 'DENSE_RANK', detail: 'DENSE_RANK() OVER (...)' },
   { name: 'LAG', detail: 'LAG(expr, offset, default) OVER (...)' },
   { name: 'LEAD', detail: 'LEAD(expr, offset, default) OVER (...)' },
-  { name: 'GROUP_CONCAT', detail: 'GROUP_CONCAT(expr SEPARATOR str)' },
+  { name: 'GROUP_CONCAT', detail: 'GROUP_CONCAT(expr, separator)' },
+  { name: 'TYPEOF', detail: 'TYPEOF(expr)' },
+  { name: 'TOTAL', detail: 'TOTAL(expr)' },
+  { name: 'INSTR', detail: 'INSTR(str, substr)' },
+  { name: 'SUBSTR', detail: 'SUBSTR(str, start, length)' },
 ];
 
 const SQL_TYPES = [
-  'INT', 'INTEGER', 'BIGINT', 'SMALLINT', 'TINYINT',
-  'FLOAT', 'DOUBLE', 'DECIMAL', 'NUMERIC',
-  'CHAR', 'VARCHAR', 'TEXT',
-  'DATE', 'TIME', 'DATETIME', 'TIMESTAMP',
-  'BOOLEAN', 'JSON', 'BLOB',
+  'INTEGER', 'REAL', 'TEXT', 'BLOB', 'NUMERIC',
+  'INT', 'BIGINT', 'SMALLINT',
+  'FLOAT', 'DOUBLE', 'DECIMAL',
+  'CHAR', 'VARCHAR',
+  'DATE', 'DATETIME', 'TIMESTAMP',
+  'BOOLEAN',
 ];
 
 const SNIPPETS = [
@@ -76,8 +79,8 @@ const SNIPPETS = [
   {
     label: 'CREATE TABLE',
     insertText:
-      'CREATE TABLE IF NOT EXISTS ${1:table_name} (\n\t${2:id} BIGINT PRIMARY KEY AUTO_INCREMENT,\n\t${3:name} VARCHAR(64) NOT NULL,\n\tcreated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n)',
-    detail: 'CREATE TABLE statement',
+      'CREATE TABLE IF NOT EXISTS ${1:table_name} (\n\t${2:id} INTEGER PRIMARY KEY AUTOINCREMENT,\n\t${3:name} TEXT NOT NULL,\n\tcreated_at TEXT DEFAULT (datetime(\'now\'))\n)',
+    detail: 'CREATE TABLE statement (SQLite)',
   },
   {
     label: 'WITH CTE',
@@ -87,27 +90,96 @@ const SNIPPETS = [
   },
 ];
 
+const KIND_MAP: Record<string, monaco.languages.CompletionItemKind> = {
+  database: monaco.languages.CompletionItemKind.Module,
+  table: monaco.languages.CompletionItemKind.Struct,
+  column: monaco.languages.CompletionItemKind.Field,
+  keyword: monaco.languages.CompletionItemKind.Keyword,
+  function: monaco.languages.CompletionItemKind.Function,
+};
+
+function getSchemaData(): SchemaData {
+  const state = useDatabaseStore.getState();
+  return {
+    databases: state.databases.map((d) => d.name),
+    activeDb: state.activeDb,
+    tables: state.tables,
+    columns: state.columns,
+  };
+}
+
 export function registerSqlCompletionProvider(): monaco.IDisposable {
   return monaco.languages.registerCompletionItemProvider('sql', {
+    triggerCharacters: ['.'],
+
     provideCompletionItems(model, position) {
       const word = model.getWordUntilPosition(position);
-      const range: monaco.IRange = {
-        startLineNumber: position.lineNumber,
-        endLineNumber: position.lineNumber,
-        startColumn: word.startColumn,
-        endColumn: word.endColumn,
-      };
-
       const suggestions: monaco.languages.CompletionItem[] = [];
 
-      // Keywords
+      // Get full SQL text and cursor offset
+      const sql = model.getValue();
+      const cursorOffset = model.getOffsetAt(position);
+
+      // Check if this is a dot-trigger
+      const textBeforeCursor = model.getValueInRange({
+        startLineNumber: 1,
+        startColumn: 1,
+        endLineNumber: position.lineNumber,
+        endColumn: position.column,
+      });
+      const isDotTrigger = textBeforeCursor.endsWith('.');
+
+      const range: monaco.IRange = isDotTrigger
+        ? {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: position.column,
+            endColumn: position.column,
+          }
+        : {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn,
+          };
+
+      // Schema-aware completions via ANTLR + c3
+      const schema = getSchemaData();
+      const hasSchema = schema.databases.length > 0;
+
+      if (hasSchema) {
+        const antlrCandidates = getCompletions(
+          { sql, cursorOffset },
+          schema,
+        );
+
+        if (antlrCandidates.length > 0) {
+          for (const c of antlrCandidates) {
+            suggestions.push({
+              label: c.label,
+              kind: KIND_MAP[c.kind] || monaco.languages.CompletionItemKind.Text,
+              insertText: c.insertText || c.label,
+              detail: c.detail,
+              range,
+              sortText: c.sortPrefix + c.label,
+            });
+          }
+
+          // For dot-trigger, only return schema completions
+          if (isDotTrigger) {
+            return { suggestions };
+          }
+        }
+      }
+
+      // Static keywords
       for (const kw of SQL_KEYWORDS) {
         suggestions.push({
           label: kw,
           kind: monaco.languages.CompletionItemKind.Keyword,
           insertText: kw,
           range,
-          sortText: '1' + kw,
+          sortText: '3' + kw,
         });
       }
 
@@ -120,7 +192,7 @@ export function registerSqlCompletionProvider(): monaco.IDisposable {
           insertTextRules: monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
           detail: fn.detail,
           range,
-          sortText: '2' + fn.name,
+          sortText: '4' + fn.name,
         });
       }
 
@@ -131,7 +203,7 @@ export function registerSqlCompletionProvider(): monaco.IDisposable {
           kind: monaco.languages.CompletionItemKind.TypeParameter,
           insertText: t,
           range,
-          sortText: '3' + t,
+          sortText: '5' + t,
         });
       }
 
