@@ -21,7 +21,7 @@ LIMIT
 
 
 SELECT
-    *
+    orders.created_at
 FROM
     orders
-ORDER BY created_at DESC 
+ORDER BY created_at DESC;
