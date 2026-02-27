@@ -1,0 +1,49 @@
+.explorer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  flex-shrink: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: var(--side-panel-fg);
+  font-size: 14px;
+}
+
+.action:hover {
+  background: var(--list-hover-bg);
+}
+
+.tree {
+  flex: 1;
+  overflow: auto;
+  padding: 4px 0;
+}
+
+.loading,
+.empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--side-panel-fg);
+  opacity: 0.5;
+  font-size: var(--font-size);
+}

@@ -1,0 +1,21 @@
+.input {
+  flex: 1;
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  background: var(--editor-bg);
+  color: var(--editor-fg);
+  outline: none;
+  font-size: var(--font-size-small);
+  min-width: 0;
+}
+
+.input:focus {
+  border-color: var(--focus-border);
+}
+
+.input::placeholder {
+  color: var(--side-panel-fg);
+  opacity: 0.5;
+}

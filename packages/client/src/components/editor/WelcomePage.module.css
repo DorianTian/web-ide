@@ -1,0 +1,52 @@
+.welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--editor-fg);
+  opacity: 0.6;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 300;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  font-size: 14px;
+  margin-bottom: 40px;
+}
+
+.shortcuts {
+  display: flex;
+  gap: 40px;
+}
+
+.shortcutGroup h3 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+  opacity: 0.8;
+}
+
+.shortcut {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.shortcut kbd {
+  display: inline-block;
+  padding: 2px 8px;
+  font-family: var(--font-family-mono);
+  font-size: 11px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  min-width: 80px;
+  text-align: center;
+}

@@ -1,0 +1,33 @@
+:root[data-theme='light'] {
+  --activity-bar-bg: #2c2c2c;
+  --activity-bar-fg: #cccccc;
+  --activity-bar-active-fg: #ffffff;
+  --activity-bar-active-border: #ffffff;
+  --side-panel-bg: #f3f3f3;
+  --side-panel-fg: #333333;
+  --side-panel-header-bg: #f3f3f3;
+  --side-panel-header-fg: #6f6f6f;
+  --editor-bg: #ffffff;
+  --editor-fg: #333333;
+  --editor-tab-bg: #ececec;
+  --editor-tab-active-bg: #ffffff;
+  --editor-tab-active-fg: #333333;
+  --editor-tab-inactive-fg: #6f6f6f;
+  --editor-tab-border: #e7e7e7;
+  --editor-tab-dirty: #333333;
+  --bottom-panel-bg: #ffffff;
+  --bottom-panel-fg: #333333;
+  --bottom-panel-header-bg: #f3f3f3;
+  --status-bar-bg: #007acc;
+  --status-bar-fg: #ffffff;
+  --border-color: #e7e7e7;
+  --context-menu-bg: #ffffff;
+  --context-menu-fg: #333333;
+  --context-menu-hover-bg: #0060c0;
+  --context-menu-border: #c8c8c8;
+  --list-hover-bg: #e8e8e8;
+  --list-active-bg: #d6ebff;
+  --selection-bg: #add6ff;
+  --scrollbar-bg: rgba(100, 100, 100, 0.3);
+  --scrollbar-hover-bg: rgba(100, 100, 100, 0.5);
+}

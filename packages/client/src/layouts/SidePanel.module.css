@@ -1,0 +1,36 @@
+.sidePanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--side-panel-bg);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  height: 35px;
+  padding: 0 20px;
+  flex-shrink: 0;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: var(--font-size-small);
+  font-weight: 400;
+  color: var(--side-panel-header-fg);
+  letter-spacing: 0.5px;
+}
+
+.content {
+  flex: 1;
+  overflow: auto;
+}
+
+.placeholder {
+  padding: 20px;
+  color: var(--side-panel-fg);
+  opacity: 0.5;
+  text-align: center;
+  font-size: var(--font-size);
+}

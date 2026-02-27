@@ -1,0 +1,42 @@
+import type * as monaco from 'monaco-editor';
+
+export const darkTheme: monaco.editor.IStandaloneThemeData = {
+  base: 'vs-dark',
+  inherit: true,
+  rules: [
+    { token: 'comment', foreground: '6A9955', fontStyle: 'italic' },
+    { token: 'keyword', foreground: '569CD6' },
+    { token: 'string', foreground: 'CE9178' },
+    { token: 'number', foreground: 'B5CEA8' },
+    { token: 'type', foreground: '4EC9B0' },
+    { token: 'function', foreground: 'DCDCAA' },
+    { token: 'variable', foreground: '9CDCFE' },
+    { token: 'operator', foreground: 'D4D4D4' },
+    // SQL tokens
+    { token: 'keyword.sql', foreground: '569CD6', fontStyle: 'bold' },
+    { token: 'operator.sql', foreground: 'D4D4D4' },
+    { token: 'predefined.sql', foreground: 'DCDCAA' },
+    { token: 'string.sql', foreground: 'CE9178' },
+    { token: 'number.sql', foreground: 'B5CEA8' },
+    { token: 'comment.sql', foreground: '6A9955', fontStyle: 'italic' },
+    { token: 'type.sql', foreground: '4EC9B0' },
+  ],
+  colors: {
+    'editor.background': '#1E1E1E',
+    'editor.foreground': '#D4D4D4',
+    'editor.lineHighlightBackground': '#2A2D2E',
+    'editor.selectionBackground': '#264F78',
+    'editor.inactiveSelectionBackground': '#3A3D41',
+    'editorCursor.foreground': '#AEAFAD',
+    'editorWhitespace.foreground': '#3B3B3B',
+    'editorIndentGuide.background': '#404040',
+    'editorLineNumber.foreground': '#858585',
+    'editorLineNumber.activeForeground': '#C6C6C6',
+    'editor.findMatchBackground': '#515C6A',
+    'editor.findMatchHighlightBackground': '#EA5C0055',
+    'editorWidget.background': '#252526',
+    'editorSuggestWidget.background': '#252526',
+    'editorSuggestWidget.border': '#454545',
+    'editorSuggestWidget.selectedBackground': '#04395E',
+  },
+};

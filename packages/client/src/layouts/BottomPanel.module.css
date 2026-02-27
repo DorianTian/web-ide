@@ -1,0 +1,12 @@
+.bottomPanel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bottom-panel-bg);
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  overflow: hidden;
+}

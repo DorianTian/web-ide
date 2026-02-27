@@ -1,0 +1,42 @@
+.panel {
+  height: 100%;
+  overflow: auto;
+  padding: 4px 8px;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  line-height: 20px;
+}
+
+.entry {
+  display: flex;
+  gap: 8px;
+}
+
+.time {
+  color: var(--editor-fg);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.type {
+  color: var(--focus-border);
+  flex-shrink: 0;
+}
+
+.file {
+  color: #4ec9b0;
+}
+
+.connection {
+  color: #6a9955;
+}
+
+.error {
+  color: #f44747;
+}
+
+.message {
+  color: var(--editor-fg);
+  opacity: 0.8;
+  word-break: break-all;
+}

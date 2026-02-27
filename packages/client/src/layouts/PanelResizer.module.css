@@ -1,0 +1,22 @@
+.resizer {
+  flex-shrink: 0;
+  background: transparent;
+  z-index: 10;
+  transition: background 0.15s;
+}
+
+.resizer:hover,
+.resizer:active {
+  background: var(--resizer-hover-color);
+  transition-delay: 0.1s;
+}
+
+.horizontal {
+  width: var(--resizer-size);
+  cursor: col-resize;
+}
+
+.vertical {
+  height: var(--resizer-size);
+  cursor: row-resize;
+}

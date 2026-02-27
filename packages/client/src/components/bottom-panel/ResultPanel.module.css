@@ -1,0 +1,33 @@
+.panel {
+  height: 100%;
+  overflow: auto;
+}
+
+.table :global(.ant-table) {
+  background: transparent;
+  color: var(--editor-fg);
+  font-size: var(--font-size-small);
+}
+
+.table :global(.ant-table-thead > tr > th) {
+  background: var(--bottom-panel-header-bg);
+  color: var(--editor-fg);
+  border-bottom: 1px solid var(--border-color);
+  padding: 4px 8px;
+  font-size: var(--font-size-small);
+}
+
+.table :global(.ant-table-tbody > tr > td) {
+  border-bottom: 1px solid var(--border-color);
+  padding: 3px 8px;
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+}
+
+.table :global(.ant-table-tbody > tr:hover > td) {
+  background: var(--list-hover-bg);
+}
+
+.table :global(.ant-table-cell) {
+  color: var(--editor-fg);
+}

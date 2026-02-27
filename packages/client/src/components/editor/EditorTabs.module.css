@@ -1,0 +1,107 @@
+.tabBar {
+  display: flex;
+  height: var(--editor-tab-height);
+  background: var(--editor-tab-bg);
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tabBar::-webkit-scrollbar {
+  height: 3px;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  padding: 0 10px;
+  min-width: 100px;
+  max-width: 200px;
+  background: var(--editor-tab-bg);
+  color: var(--editor-tab-inactive-fg);
+  border-right: 1px solid var(--editor-tab-border);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.1s;
+  position: relative;
+}
+
+.tab:hover {
+  background: var(--editor-tab-active-bg);
+}
+
+.tab.active {
+  background: var(--editor-tab-active-bg);
+  color: var(--editor-tab-active-fg);
+}
+
+.tab.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--focus-border);
+}
+
+.tab.preview .name {
+  font-style: italic;
+}
+
+.tab.dragOver {
+  border-left: 2px solid var(--focus-border);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--font-size);
+}
+
+.dirty {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--editor-tab-dirty);
+  flex-shrink: 0;
+}
+
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.tab:hover .close,
+.tab.active .close {
+  opacity: 0.7;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1 !important;
+}
+
+/* When dirty, show the dirty dot, but on hover show close button instead */
+.tab:hover .dirty {
+  display: none;
+}
